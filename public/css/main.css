@@ -310,7 +310,7 @@ nav a:hover{
     margin-bottom: 5px;
 }
 
-.replyFlag a{
+.replyFlag a, .header .username{
     color: var(--blue);
 }
 
@@ -842,6 +842,6 @@ nav a:hover{
     color: var(--textColor);
 }
 
-.fa-retweet{
+.retweetGreen i{
     color: green;
 }

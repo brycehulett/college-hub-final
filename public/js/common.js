@@ -381,7 +381,7 @@ function createPostHtml(postData, largeFont = false){
 
     var retweetText = "";
     if(isRetweet){
-        retweetText =   `<span>
+        retweetText =   `<span class="retweetGreen">
                             <i class="fas fa-retweet"></i>
                             Reposted by <a href='/profile/${retweetedBy}'>@${retweetedBy}</a>
                         </span>`;
@@ -397,7 +397,10 @@ function createPostHtml(postData, largeFont = false){
                             </object>
             `;
             
-        }else{
+        }else if(extension == 'pdf'){
+            fileText = `<embed src="${postData.filePath}" width="800px" height="1000px" />`;
+        }
+        else{
             fileText = 
                 `<span class="fileUploadImage">
                     <img src="${postData.filePath}" alt="uploaded file">
