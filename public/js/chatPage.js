@@ -1,3 +1,9 @@
+/*
+    written by: Morrow, Hulett, Ji
+    tested by: Morrow, Hulett, Ji
+    debugged by: Morrow, Hulett, Ji
+*/
+
 var typing = false;
 var lastTypingTime;
 
@@ -21,6 +27,7 @@ $(document).ready(()=>{
         var msgsHtml = msgs.join("");
         addMessagesHtmlToPage(msgsHtml);
         scrollToBottom(false);
+        markAllMessagesAsRead();
 
         $('.loadingSpinnerContainer').remove();
         $('.chatContainer').css('visibility','visible');
@@ -178,4 +185,12 @@ function scrollToBottom(animated){
     }else{
         container.scrollTop(scrollHeight);
     }
+}
+
+function markAllMessagesAsRead(){
+    $.ajax({
+        url: `/api/chats/${chatId}/messages/markAsRead`,
+        type: "PUT",
+        success: () => refreshMessagesBadge()
+    })
 }

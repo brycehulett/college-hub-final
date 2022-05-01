@@ -1,3 +1,9 @@
+/*
+    written by: Morrow, Hulett, Ji
+    tested by: Morrow, Hulett, Ji
+    debugged by: Morrow, Hulett, Ji
+*/
+
 const express = require('express');
 const app = express();
 const port = 3000;
@@ -34,12 +40,14 @@ const uploadRoute = require('./routes/uploadRoutes');
 const searchRoute = require('./routes/searchRoutes');
 const messagesRoute = require('./routes/messagesRoutes');
 const filesRoute = require('./routes/filesRoutes');
+const notificationsRoute = require('./routes/notificationsRoutes');
 
 // API Routes
 const postApiRoute = require('./routes/api/posts');
 const usersApiRoute = require('./routes/api/users');
 const chatsApiRoute = require('./routes/api/chats');
 const messagesApiRoute = require('./routes/api/messages');
+const notificationsApiRoute = require('./routes/api/notifications');
 
 // Routes
 app.use("/login", loginRoute);
@@ -51,12 +59,14 @@ app.use("/uploads", uploadRoute);
 app.use("/search", middleware.requireLogin, searchRoute);
 app.use("/messages", middleware.requireLogin, messagesRoute);
 app.use("/files", filesRoute);
+app.use("/notifications", middleware.requireLogin, notificationsRoute);
 
 // API Routes
 app.use("/api/posts", postApiRoute);
 app.use("/api/users", usersApiRoute);
 app.use("/api/chats", chatsApiRoute);
 app.use("/api/messages", messagesApiRoute);
+app.use("/api/notifications", notificationsApiRoute);
 
 
 // when the root of the site is accessed, first check if user is logged in
@@ -82,6 +92,7 @@ io.on("connection", socket => {
     socket.on("join room", room => socket.join(room));
     socket.on("typing", room => socket.in(room).emit("typing"));
     socket.on("stop typing", room => socket.in(room).emit("stop typing"));
+    socket.on("notification received", room => socket.in(room).emit("notification received"));
 
     socket.on("new message", newMessage => {
         var chat = newMessage.chat;

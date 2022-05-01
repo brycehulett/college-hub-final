@@ -1,3 +1,9 @@
+/*
+// written by: Morrow, Hulett, Ji
+// tested by: Morrow, Hulett, Ji
+// debugged by: Morrow, Hulett, Ji
+*/
+
 :root[color-mode="light"]{
     --blue: #1FA2F1;
     --buttonHoverBg: #D4EDFF;
@@ -15,6 +21,7 @@
     --backgroundColor: #FFF;
     --backgroundColorTierTwo: #FFF;
     --resultsListHover:#12a9ab;
+    --noti: #A7171A;
 }
 
 :root[color-mode="dark"]{
@@ -34,6 +41,7 @@
     --backgroundColor: #121212;
     --backgroundColorTierTwo: #212121;
     --resultsListHover: #393F44;
+    --noti: #008000;
 }
 
 *{
@@ -103,6 +111,7 @@ nav a{
     align-items: center;
     justify-content: center;
     color: var(--textColor);
+    position: relative;
 }
 
 button{
@@ -844,4 +853,34 @@ nav a:hover{
 
 .retweetGreen i{
     color: green;
+}
+
+.resultListItem.active {
+    background-color: var(--blueBkg);
+}
+
+.resultListItem.notification * {
+    pointer-events: none;
+}
+
+#notificationsBadge,
+#messagesBadge{
+    background-color: var(--noti);
+    height: 21px;
+    width: 21px;
+    font-size: small;
+    border-radius: 50%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    color: var(--backgroundColor);
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    visibility: hidden;
+    
+}
+#notificationsBadge.active,
+#messagesBadge.active{
+    visibility: visible;
 }

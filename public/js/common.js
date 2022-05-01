@@ -1,6 +1,17 @@
+/*
+    written by: Morrow, Hulett, Ji
+    tested by: Morrow, Hulett, Ji
+    debugged by: Morrow, Hulett, Ji
+*/
+
 // globals
 var cropper, timer;
 var selectedUsers = [];
+
+$(document).ready(()=>{
+    refreshMessagesBadge();
+    refreshNotificationsBadge();
+})
 
 $("#postTextarea, #replyTextarea").keyup(e=>{
     var textbox = $(e.target);
@@ -40,6 +51,7 @@ $("#submitPostButton, #submitReplyButton").click((e)=>{
     $.post("/api/posts", data, postData => {
 
         if(postData.replyTo){
+            emitNotification(postData.replyTo.postedBy);
             location.reload();
         }else{
             var html = createPostHtml(postData);    
@@ -289,6 +301,7 @@ $(document).on("click",".likeButton",(e)=>{
             button.find("span").text(postData.likes.length || "");
             if(postData.likes.includes(userLoggedIn._id)){
                 button.addClass("active");
+                emitNotification(postData.postedBy);
             }else{
                 button.removeClass("active");
             }
@@ -310,6 +323,7 @@ $(document).on("click", ".retweetButton",(e)=>{
             button.find("span").text(postData.retweetUsers.length || "");
             if(postData.retweetUsers.includes(userLoggedIn._id)){
                 button.addClass("active");
+                emitNotification(postData.postedBy);
             }else{
                 button.removeClass("active");
             }
@@ -342,6 +356,7 @@ $(document).on("click", ".followButton",(e)=>{
                 if(data.following && data.following.includes(userId)){
                     button.addClass("following");
                     button.text("Following");
+                    emitNotification(userId);
                 }else{
                     button.removeClass("following");
                     button.text("Follow");
@@ -356,6 +371,16 @@ $(document).on("click", ".followButton",(e)=>{
         })
 })
 
+$(document).on('click', ".notification.active", (e) =>{
+    var container = $(e.target);
+    var notificationId = container.data().id;
+    var href = container.attr("href");
+    e.preventDefault();
+
+    var callback = () => window.location = href;
+    markNotificationsAsOpened(notificationId, callback);
+})
+
 function getPostIdFromElement(element){
     var isRoot = element.hasClass("post");
     var rootElement = isRoot ? element: element.closest(".post");
@@ -364,14 +389,20 @@ function getPostIdFromElement(element){
 
 
 function createPostHtml(postData, largeFont = false){
+    if(postData == null) {
+        return alert("post object is null");
+    }
 
-    if(postData == null) return alert("post object is null");
-
-    var isRetweet = postData.retweetData !== undefined;
+    var isRetweet = postData.retweetData !== undefined && postData.retweetData !== null;
     var retweetedBy = isRetweet ? postData.postedBy.username : null;
     postData = isRetweet ? postData.retweetData : postData;
 
     var postedBy = postData.postedBy;
+
+    if(postedBy._id === undefined){
+        return console.log("user object not populated");
+    }
+
     var displayName = postedBy.firstName + " " + postedBy.lastName;
     var timestamp = timeDifference(new Date(), new Date(postData.createdAt));
 
@@ -661,4 +692,39 @@ function msgReceived(newMsg){
     }else{
         addChatMessageHtml(newMsg);
     }
+    refreshMessagesBadge();
+}
+
+function markNotificationsAsOpened(notificationId = null, callback=null){
+    if(callback == null) callback = () => location.reload();
+
+    var url = notificationId != null ? `/api/notifications/${notificationId}/markAsOpened`:`/api/notifications/markAsOpened`;
+    $.ajax({
+        url,
+        type: "PUT",
+        success: callback
+    })
+}
+
+function refreshMessagesBadge(){
+    $.get("/api/chats", {unreadOnly: true}, (data)=>{
+        var numMessages = data.length;
+        console.log(numMessages);
+        if(numMessages > 0){
+            $("#messagesBadge").text(numMessages).addClass("active");
+        }else{
+            $("#messagesBadge").text("").removeClass("active");
+        }
+    })
+}
+
+function refreshNotificationsBadge(){
+    $.get("/api/notifications", {unreadOnly: true}, (data)=>{
+        var numMessages = data.length;
+        if(numMessages > 0){
+            $("#notificationsBadge").text(numMessages).addClass("active");
+        }else{
+            $("#notificationsBadge").text("").removeClass("active");
+        }
+    })
 }
