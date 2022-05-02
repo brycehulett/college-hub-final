@@ -1,8 +1,5 @@
-/*
-    written by: Morrow, Hulett, Ji
-    tested by: Morrow, Hulett, Ji
-    debugged by: Morrow, Hulett, Ji
-*/
+// for testing purposes only
+
 require('dotenv').config();
 const express = require('express');
 const app = express();
@@ -10,11 +7,23 @@ const port = 3000;
 const middleware = require('./middleware');
 const path = require('path')
 const bodyParser = require('body-parser');
-const mongoose = require('./database')
 const session = require('express-session');
 
-const server = app.listen(port, ()=> console.log("Server listening on port " + port));
-const io = require("socket.io")(server, {pingTimeout: 60000});
+// const MongoClient = require('mongodb').MongoClient;
+// const url = 'mongodb://127.0.0.1:27017';
+// const dbName = 'college-hub-test'
+// let db
+
+// MongoClient.connect(url, { useNewUrlParser: true }, (err, client) => {
+//   if (err) return console.log(err)
+
+//   // Storing a reference to the database so you can use it later
+//   db = client.db(dbName)
+//   console.log(`Connected MongoDB: ${url}`)
+//   console.log(`Database: ${dbName}`)
+// })
+
+
 
 app.set("view engine", "pug");      // template engine
 app.set("views", "views");          // use folder called views for views
@@ -68,9 +77,8 @@ app.use("/api/chats", chatsApiRoute);
 app.use("/api/messages", messagesApiRoute);
 app.use("/api/notifications", notificationsApiRoute);
 
-
 // when the root of the site is accessed, first check if user is logged in
-app.get("/", middleware.requireLogin, (req, res, next)=>{
+app.get("/", (req, res, next)=>{
 
     // create some payload
     var payload = {
@@ -82,26 +90,4 @@ app.get("/", middleware.requireLogin, (req, res, next)=>{
     res.status(200).render("home", payload); // render home.pug as view passing payload
 })
 
-io.on("connection", socket => {
-    
-    socket.on("setup", userData => {
-        socket.join(userData._id);
-        socket.emit("connected");
-    })
-
-    socket.on("join room", room => socket.join(room));
-    socket.on("typing", room => socket.in(room).emit("typing"));
-    socket.on("stop typing", room => socket.in(room).emit("stop typing"));
-    socket.on("notification received", room => socket.in(room).emit("notification received"));
-
-    socket.on("new message", newMessage => {
-        var chat = newMessage.chat;
-
-        if(!chat.users) return console.log("chat.usrs not defined");
-
-        chat.users.forEach(user=>{
-            if(user._id == newMessage.sender._id) return;
-            socket.in(user._id).emit("message received", newMessage);
-        })
-    });
-})
+module.exports = app;

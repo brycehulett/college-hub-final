@@ -17,6 +17,8 @@ router.get("/", (req, res, next)=>{
 
 router.post("/", async(req, res, next)=>{
 
+    //console.log(req);
+
     var firstName = req.body.firstName.trim();
     var lastName = req.body.lastName.trim();
     var username = req.body.username.trim();
@@ -44,6 +46,7 @@ router.post("/", async(req, res, next)=>{
             User.create(data)
             .then((user)=>{
                 req.session.user = user;
+                res.status(201);
                 return res.redirect("/");
             })
             .catch()
